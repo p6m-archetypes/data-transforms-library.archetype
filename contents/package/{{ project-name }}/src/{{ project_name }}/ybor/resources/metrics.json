@@ -1,0 +1,57 @@
+{
+  "spark_config": {
+    "appName": "LowCodePySparkFramework",
+    "master": "local[*]",
+    "config": {
+      "spark.jars.packages": "org.postgresql:postgresql:42.2.22,org.apache.hadoop:hadoop-aws:3.3.4,org.apache.iceberg:iceberg-spark-runtime-3.3_2.12:1.1.0,software.amazon.awssdk:bundle:2.18.31,software.amazon.awssdk:url-connection-client:2.18.31",
+      "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
+      "spark.sql.defaultCatalog": "dp_catalog",
+      "spark.sql.catalog.dp_catalog": "org.apache.iceberg.spark.SparkCatalog",
+      "spark.sql.catalog.dp_catalog.warehouse": "s3://dp-catalog/iceberg/",
+      "spark.sql.catalog.dp_catalog.catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
+      "spark.sql.catalog.dp_catalog.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+      "mapreduce.fileoutputcommitter.marksuccessfuljobs": "false",
+      "spark.sql.legacy.timeParserPolicy": "LEGACY",
+      "spark.executor.memory": "2G",
+      "spark.driver.memorymaxResultSize": "1G"
+    }
+  },
+  "input_datasets": [
+    {
+      "name": "sales",
+      "type": "file",
+      "format": "csv",
+      "path": "../resources/sales.csv",
+      "options": {
+        "header": "true",
+        "inferSchema": "true"
+      }
+    }
+  ],
+  "output_dataset": {
+      "type": "file",
+      "format": "csv",
+      "path": "../resources/output/",
+      "options": {
+        "mode": "overwrite",
+        "header": "true"
+      },
+      "partition_by": ["date"]
+  },
+  "transformations": {
+    "aggregation": {
+      "type": "cube",
+      "group_by": ["product_id", "date"],
+      "metrics": [
+      {
+        "column": "revenue",
+        "function": "sum"
+      },
+      {
+        "column": "stock",
+        "function": "count"
+      }
+    ]
+    }
+  }
+}

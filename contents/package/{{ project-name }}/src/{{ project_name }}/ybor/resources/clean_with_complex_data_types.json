@@ -1,0 +1,65 @@
+{
+    "input_datasets": [
+    {
+      "name": "talkwalker",
+      "type": "file",
+      "format": "json",
+      "input_source": "s3",
+      "path": "s3a://legos-docs/ybor/public/raw/talkwalker/ad6bc12c-bb4e-4cbd-9d27-3250d40d6305/lr6f8vq1_gq0y2dzviyl8/1706087102/343.jsonl",
+      "options": {
+        "inferSchema": "true"
+      }
+    }
+  ],
+  "output_dataset": {
+      "type": "file",
+      "format": "json",
+      "path": "../resources/output/talkwalker",
+      "options": {
+        "mode": "overwrite",
+        "ignoreNullFields": "false"
+      },
+      "partition_by": ["geo_country", "geo_city"]
+  },
+  "transformations": {
+    "cleaning": {
+        "add_static_columns" : {
+          "source_name" : "talkwalker",
+          "venture_name" : "sharkninja",
+          "product_name" : "thristi"
+        },
+        "standard": {
+          "body": {"output": "source_data"},
+          "published": {"output": "source_created_date"},
+          "extra_source_attributes.world_data.city" : {"output": "geo_city", "cast": "string"},
+          "extra_source_attributes.world_data.continent" : {"output": "geo_continent", "cast": "string"},
+          "extra_source_attributes.world_data.country" : {"output": "geo_country", "cast": "string"},
+          "extra_source_attributes.world_data.country_code" : {"output": "geo_country_code", "cast": "string"},
+          "extra_source_attributes.world_data.region" : {"output": "geo_region", "cast": "string"},
+          "extra_source_attributes.world_data.latitude" : {"output": "geo_latitude", "cast": "float"},
+          "extra_source_attributes.world_data.longitude" : {"output": "geo_longitude", "cast": "float"},
+          "extra_author_attributes.gender" : {"output": "gender", "conversion":  {"method":  "nullify"}, "cast": "string"},
+          "extra_author_attributes.age" : {"output": "age", "default":  "NULL", "cast": "integer"},
+          "interests": {"output": "interests", "function": "random_interests_selection"}
+        },
+        "custom": {"add_meta": "false", "generate_etl_cols": "true", "project_all": "true"}
+  }
+  },
+  "spark_config": {
+    "appName": "LowCodePySparkFramework",
+    "master": "local[*]",
+    "config": {
+      "spark.jars.packages": "org.apache.hadoop:hadoop-aws:3.3.4,org.apache.iceberg:iceberg-spark-runtime-3.3_2.12:1.1.0,software.amazon.awssdk:bundle:2.18.31,software.amazon.awssdk:url-connection-client:2.18.31",
+      "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
+      "spark.sql.defaultCatalog": "dp_catalog",
+      "spark.sql.catalog.dp_catalog": "org.apache.iceberg.spark.SparkCatalog",
+      "spark.sql.catalog.dp_catalog.warehouse": "s3://dp-catalog/iceberg/",
+      "spark.sql.catalog.dp_catalog.catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
+      "spark.sql.catalog.dp_catalog.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+      "mapreduce.fileoutputcommitter.marksuccessfuljobs": "false",
+      "spark.sql.legacy.timeParserPolicy": "LEGACY",
+      "spark.executor.memory": "2G",
+      "spark.driver.memorymaxResultSize": "1G"
+    }
+  }
+}

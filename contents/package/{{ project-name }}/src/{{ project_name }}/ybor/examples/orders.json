@@ -1,0 +1,71 @@
+{
+  "input_datasets": [{
+    "name": "superstore",
+    "type": "file",
+    "format": "csv",
+    "path": "../resources/superstore.csv",
+    "options": {
+        "quote": "\"",
+        "escape": "\"",
+        "header": "true",
+        "inferSchema": "true"
+    }
+  }],
+  "output_dataset": {
+    "type": "file",
+    "format": "csv",
+    "path": "../examples/out/orders",
+    "options": {
+        "mode": "overwrite",
+        "header": "true"
+    }
+  },
+  "transformations": {
+    "cleaning": {
+      "standard": {
+        "Row ID": {"output": "transaction_id"},
+        "Order ID": {"output": "order_id"},
+        "Order Date": {
+            "output": "order_date",
+            "conversion": {
+                "method": "date_from_string",
+                "args": {"source_format": "MM/dd/yyyy", "target_format": "yyyy-MM-dd"}
+            }
+        },
+        "Ship Date": {
+            "output": "shipment_date",
+            "conversion": {
+                "method": "date_from_string",
+                "args": {"source_format": "MM/dd/yyyy", "target_format": "yyyy-MM-dd"}
+            }
+        },
+        "Ship Mode": {"output": "shipment_mode"},
+        "Customer ID": {"output": "customer_id"},
+        "Customer Name": {"output": "customer_name"},
+        "Segment": {"output": "customer_segment"},
+        "Country": {"output": "country"},
+        "State": {"output": "state"},
+        "City": {"output": "city"},
+        "Postal Code": {"output": "zip_code"},
+        "Region": {"output": "region"},
+        "Product ID": {"output": "product_id"},
+        "Category": {"output": "product_category"},
+        "Sub-Category": {"output": "product_subcategory"},
+        "Product Name": {"output": "product_name"},
+        "Sales": {"output": "order_total"},
+        "Quantity": {"output": "order_quantity"},
+        "Discount": {"output": "order_discount"},
+        "Profit": {"output": "order_net_profit"}
+      },
+      "custom": {"generate_etl_cols": "true"}
+    }
+  },
+  "spark_config": {
+    "appName": "TransformationSalesExample",
+    "config": {
+        "mapreduce.fileoutputcommitter.marksuccessfuljobs": "false",
+        "spark.sql.legacy.timeParserPolicy": "LEGACY"
+    }
+  }
+}
+

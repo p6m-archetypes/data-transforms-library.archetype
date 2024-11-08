@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "{{ project-name }}"
+version = "1.0.0"
+description = "Data Transforms Library"
+
+authors = [
+    "{{ author_full }}",
+    "Archetect <archetect@github.io>",
+]
+
+readme = "README.md"
+packages = [
+    { include = "{{ project_name }}", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+{% if "ybor-etl-lib" in features -%}
+
+requests = "^2.31.0"
+pyspark = "^3.5.0"
+pyyaml = "^6.0"
+boto3 = "^1.28.0"
+
+{% endif %}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+flake8 = "^6.1.0"
+
+[[tool.poetry.source]]
+name = "{{ org_name }}_{{ solution_name }}_pypi"
+url = "https://p6m.jfrog.io/artifactory/api/pypi/{{ org-name }}-{{ solution-name }}-pypi/simple"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "{{ org_name }}_{{ solution_name }}_pypi_local"
+url = "https://p6m.jfrog.io/artifactory/api/pypi/{{ org-name }}-{{ solution-name }}-pypi-local/simple"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "{{ org_name }}_{{ solution_name }}_pypi_push"
+url = "https://p6m.jfrog.io/artifactory/api/pypi/{{ org-name }}-{{ solution-name }}-pypi"
+priority = "supplemental"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

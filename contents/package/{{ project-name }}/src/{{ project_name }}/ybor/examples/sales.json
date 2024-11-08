@@ -1,0 +1,57 @@
+{
+  "input_datasets": [{
+    "name": "superstore",
+    "type": "file",
+    "format": "csv",
+    "path": "../resources/sales.csv",
+    "options": {
+        "quote": "\"",
+        "escape": "\"",
+        "header": "true",
+        "inferSchema": "true"
+    }
+  }],
+  "output_dataset": {
+    "type": "file",
+    "format": "csv",
+    "path": "../examples/out/sales",
+    "options": {
+        "mode": "overwrite",
+        "header": "true"
+    }
+  },
+  "transformations": {
+    "cleaning": {
+      "static": {
+          "source_name": "datalib",
+          "venture_name": "sales",
+          "product_name": "sample"
+      },
+      "standard": {
+          "product_id": {
+              "output": "EncryptedProduct_ID",
+              "function": "transform_util.md5_encrypt"
+          },
+          "store_id": {"output": "StoreId"},
+          "date": {
+              "output": "TransactionDate",
+              "conversion": {
+                  "method": "date_from_string",
+                  "args": {"target_format": "yyyy/MM/dd"}
+              }
+          },
+          "sales": {"output": "SalesAmount", "cast": "float"},
+          "stock": {"output": "NoOfItems", "cast": "integer"}
+      },
+      "custom": {"add_meta": "false", "generate_etl_cols": "true"}
+    }
+  },
+  "spark_config": {
+    "appName": "TransformationSalesExample",
+    "config": {
+        "mapreduce.fileoutputcommitter.marksuccessfuljobs": "false",
+        "spark.sql.legacy.timeParserPolicy": "LEGACY"
+    }
+  }
+}
+
